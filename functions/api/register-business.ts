@@ -15,17 +15,17 @@ export async function onRequestPost(context: any) {
 
     const id = "biz-" + Date.now();
     await db.prepare(`
-      INSERT INTO businesses (id, email, password, name, tax_or_detsis, sector, role, about, vision, budget_commitment, logo, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, 'Business', '', '', '', '🏢', ?)
+      INSERT INTO businesses (id, email, password, name, tax_or_detsis, sector, role, about, vision, budget_commitment, logo, approved, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, 'Business', '', '', '', '🏢', 0, ?)
     `).bind(id, email, password, name, taxOrDetsis, sector, new Date().toISOString()).run();
 
-    // Also auto insert as a business candidate so they show up in listings!
+    // Also insert as a business candidate so they show up in listings AFTER approval!
     await db.prepare(`
-      INSERT INTO business_candidates (id, icon, name, votes, sector, category, region, about, vision, budget_commitment, created_at)
-      VALUES (?, '🏢', ?, 0, ?, 'Diğer', 'Marmara Bölgesi', '', '', '', ?)
+      INSERT INTO business_candidates (id, icon, name, votes, sector, category, region, about, vision, budget_commitment, approved, created_at)
+      VALUES (?, '🏢', ?, 0, ?, 'Diğer', 'Marmara Bölgesi', '', '', '', 0, ?)
     `).bind(id, name, sector === "kamu" ? "Kamu" : "Özel", new Date().toISOString()).run();
 
-    return new Response(JSON.stringify({ success: true, user: { name, email, role: "Business" } }), {
+    return new Response(JSON.stringify({ success: true }), {
       headers: { "Content-Type": "application/json" }
     });
   } catch (err: any) {

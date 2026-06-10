@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from "react";
-import { LogIn, Mail, Lock, ShieldCheck, Chrome, Sparkles, User, Phone, Check } from "lucide-react";
+import { LogIn, Mail, Lock, ShieldCheck, Sparkles, User, Phone, Check } from "lucide-react";
 
 interface UserLoginPopupProps {
   isOpen: boolean;
@@ -52,10 +52,8 @@ export default function UserLoginPopup({
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          setSuccessMsg("Kayıt işleminiz başarıyla tamamlandı! Sisteme giriş yapılıyor...");
+          setSuccessMsg("Kayıt işleminiz başarıyla tamamlandı! Hesabınız yönetici onayından sonra aktif edilecektir.");
           setTimeout(() => {
-            onLoginSuccess(fullName, "User");
-            onClose();
             setIsRegistering(false);
             // Clear forms
             setFullName("");
@@ -63,7 +61,7 @@ export default function UserLoginPopup({
             setPassword("");
             setPhone("");
             setSuccessMsg("");
-          }, 1000);
+          }, 3500);
         } else {
           setErrorMsg(data.error || "Kayıt başarısız oldu.");
         }
@@ -98,11 +96,6 @@ export default function UserLoginPopup({
         setErrorMsg("Bağlantı hatası oluştu.");
       });
     }
-  };
-
-  const handleShortcutLogin = (name: string, role: string = "User") => {
-    onLoginSuccess(name, role);
-    onClose();
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -261,7 +254,7 @@ export default function UserLoginPopup({
               className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl shadow-sm cursor-pointer transition-all text-xs flex items-center justify-center space-x-2"
             >
               <LogIn className="w-4 h-4" />
-              <span>{isRegistering ? "Hemen Kaydol & Giriş Yap" : "Giriş Yap"}</span>
+              <span>{isRegistering ? "Hemen Kaydol & Onay Bekle" : "Giriş Yap"}</span>
             </button>
           </form>
 
@@ -288,52 +281,6 @@ export default function UserLoginPopup({
                 </button>
               </span>
             )}
-          </div>
-
-          <div className="relative flex py-1 items-center">
-            <div className="flex-grow border-t border-neutral-100"></div>
-            <span className="flex-shrink mx-3 text-neutral-400 text-[10px] font-bold uppercase tracking-wider">Veya</span>
-            <div className="flex-grow border-t border-neutral-100"></div>
-          </div>
-
-          {/* Social SSO Connectors & Shortcuts list */}
-          <div className="grid grid-cols-2 gap-2.5">
-            <button
-              onClick={() => handleShortcutLogin("Hakan Yalçın")}
-              className="flex items-center justify-center space-x-2 py-2 px-3 border border-neutral-200 rounded-xl text-xs font-semibold text-neutral-700 bg-white hover:bg-neutral-50 transition-all cursor-pointer"
-            >
-              <Chrome className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Google</span>
-            </button>
-            <button
-              onClick={() => handleShortcutLogin("Selin Demir")}
-              className="flex items-center justify-center space-x-2 py-2 px-3 border border-neutral-200 rounded-xl text-xs font-semibold text-neutral-700 bg-white hover:bg-neutral-50 transition-all cursor-pointer"
-            >
-              <span className="text-sm font-bold text-neutral-800 leading-none"></span>
-              <span>Apple</span>
-            </button>
-          </div>
-
-          {/* Shortcuts Footer Area (only Kurumsal is visible) */}
-          <div className="flex justify-between items-center pt-2.5 border-t border-neutral-100">
-            <button 
-              onClick={() => handleShortcutLogin("Marka Temsilcisi", "Business")}
-              className="text-[10.5px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 py-1.5 px-3 rounded-lg border-0 cursor-pointer transition-all mx-auto"
-            >
-              🏢 Kurumsal Giriş Yap
-            </button>
-            
-            {/* Stealth Super Admin Button as a discreet '-' as requested */}
-            <button
-              onClick={() => {
-                handleShortcutLogin("Süper Admin", "Admin");
-                alert("Süper Admin kontrol paneline başarıyla erişildi!");
-              }}
-              className="text-neutral-300 hover:text-neutral-500 text-xs px-2.5 py-1.5 border-0 bg-transparent cursor-pointer transition-all bg-neutral-50 rounded-md"
-              title="Sistem Yönetimi"
-            >
-              -
-            </button>
           </div>
 
         </div>

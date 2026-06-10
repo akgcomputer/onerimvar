@@ -22,6 +22,13 @@ export async function onRequestPost(context: any) {
       });
     }
 
+    if (user.approved === 0 && user.role !== "Admin") {
+      return new Response(JSON.stringify({ success: false, error: "Hesabınız henüz yönetici tarafından onaylanmamıştır." }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
     return new Response(JSON.stringify({ 
       success: true, 
       user: { 

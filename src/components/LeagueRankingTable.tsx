@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Award, Trophy, MapPin, Building, Building2 } from "lucide-react";
+import { AppState } from "../types";
 
 export interface LeagueRow {
   rank: number;
@@ -17,63 +18,17 @@ export interface LeagueRow {
   toplam: number;
 }
 
-export const LEAGUE_TABLE_DATA_OZEL: LeagueRow[] = [
-  { rank: 1, name: "ABC Kargo", oneri: 20, sikayet: 30, fikir: 40, kampanya: 50, anket: 20, toplam: 160 },
-  { rank: 2, name: "Espressolab Moda", oneri: 24, sikayet: 20, fikir: 32, kampanya: 41, anket: 15, toplam: 132 },
-  { rank: 3, name: "TrendYol Group", oneri: 15, sikayet: 40, fikir: 28, kampanya: 33, anket: 12, toplam: 128 },
-  { rank: 4, name: "Pegasus Havayolları", oneri: 14, sikayet: 32, fikir: 22, kampanya: 35, anket: 18, toplam: 121 },
-  { rank: 5, name: "Garanti BBVA", oneri: 12, sikayet: 28, fikir: 30, kampanya: 25, anket: 20, toplam: 115 },
-  { rank: 6, name: "Starbucks Türkiye", oneri: 16, sikayet: 15, fikir: 35, kampanya: 28, anket: 14, toplam: 108 },
-  { rank: 7, name: "Getir Global", oneri: 10, sikayet: 30, fikir: 25, kampanya: 24, anket: 15, toplam: 104 },
-  { rank: 8, name: "Yemeksepeti", oneri: 15, sikayet: 22, fikir: 18, kampanya: 30, anket: 18, toplam: 103 },
-  { rank: 9, name: "Turkcell İletişim", oneri: 11, sikayet: 25, fikir: 21, kampanya: 28, anket: 16, toplam: 101 },
-  { rank: 10, name: "Migros Ticaret A.Ş.", oneri: 15, sikayet: 18, fikir: 16, kampanya: 25, anket: 21, toplam: 95 },
-  { rank: 11, name: "Vodafone Türkiye", oneri: 9, sikayet: 24, fikir: 20, kampanya: 26, anket: 15, toplam: 94 },
-  { rank: 12, name: "Türk Telekom", oneri: 12, sikayet: 20, fikir: 18, kampanya: 22, anket: 21, toplam: 93 },
-  { rank: 13, name: "MNG Kargo", oneri: 8, sikayet: 31, fikir: 15, kampanya: 24, anket: 14, toplam: 92 },
-  { rank: 14, name: "Sürat Kargo", oneri: 10, sikayet: 25, fikir: 16, kampanya: 22, anket: 18, toplam: 91 }
-];
-
-export const LEAGUE_TABLE_DATA_KAMU: LeagueRow[] = [
-  { rank: 1, name: "Kadıköy Belediyesi", oneri: 22, sikayet: 35, fikir: 38, kampanya: 30, anket: 25, toplam: 150 },
-  { rank: 2, name: "Metro İstanbul A.Ş.", oneri: 18, sikayet: 25, fikir: 45, kampanya: 22, anket: 30, toplam: 140 },
-  { rank: 3, name: "İstanbul Büyükşehir Bld.", oneri: 30, sikayet: 18, fikir: 20, kampanya: 15, anket: 40, toplam: 123 },
-  { rank: 4, name: "Şişli Belediyesi", oneri: 20, sikayet: 15, fikir: 14, kampanya: 18, anket: 32, toplam: 99 },
-  { rank: 5, name: "Beşiktaş Belediyesi", oneri: 18, sikayet: 16, fikir: 12, kampanya: 20, anket: 30, toplam: 96 },
-  { rank: 6, name: "Ankara Büyükşehir Bld.", oneri: 25, sikayet: 14, fikir: 22, kampanya: 10, anket: 21, toplam: 92 },
-  { rank: 7, name: "İzmir Büyükşehir Bld.", oneri: 28, sikayet: 15, fikir: 19, kampanya: 8, anket: 20, toplam: 90 },
-  { rank: 8, name: "Bursa Büyükşehir Bld.", oneri: 15, sikayet: 12, fikir: 14, kampanya: 12, anket: 18, toplam: 71 },
-  { rank: 9, name: "Antalya Büyükşehir Bld.", oneri: 14, sikayet: 10, fikir: 12, kampanya: 15, anket: 15, toplam: 66 },
-  { rank: 10, name: "Üsküdar Belediyesi", oneri: 12, sikayet: 8, fikir: 10, kampanya: 14, anket: 12, toplam: 56 }
-];
-
-export const LOCAL_TABLE_DATA_OZEL: LeagueRow[] = [
-  { rank: 1, name: "Kadıköy Starbucks Şubesi", oneri: 10, sikayet: 4, fikir: 12, kampanya: 8, anket: 6, toplam: 40 },
-  { rank: 2, name: "MNG Kargo Moda Acentesi", oneri: 5, sikayet: 12, fikir: 4, kampanya: 6, anket: 5, toplam: 32 },
-  { rank: 3, name: "Beşiktaş Migros Jet", oneri: 6, sikayet: 2, fikir: 8, kampanya: 10, anket: 4, toplam: 30 },
-  { rank: 4, name: "Yemeksepeti Kadıköy Depo", oneri: 4, sikayet: 8, fikir: 3, kampanya: 5, anket: 3, toplam: 23 },
-  { rank: 5, name: "Pegasus Sabiha Gökçen Kontuar", oneri: 3, sikayet: 10, fikir: 2, kampanya: 4, anket: 2, toplam: 21 }
-];
-
-export const LOCAL_TABLE_DATA_KAMU: LeagueRow[] = [
-  { rank: 1, name: "Kadıköy Belediyesi Zabıta Hizmetleri", oneri: 15, sikayet: 10, fikir: 12, kampanya: 5, anket: 14, toplam: 56 },
-  { rank: 2, name: "İSKİ Kadıköy Şube Müdürlüğü", oneri: 10, sikayet: 18, fikir: 8, kampanya: 4, anket: 10, toplam: 50 },
-  { rank: 3, name: "İGDAŞ Kadıköy Bölge Müdürlüğü", oneri: 8, sikayet: 12, fikir: 6, kampanya: 2, anket: 8, toplam: 36 },
-  { rank: 4, name: "Beşiktaş Belediyesi Park ve Bahçeler", oneri: 5, sikayet: 4, fikir: 10, kampanya: 3, anket: 12, toplam: 34 },
-  { rank: 5, name: "Kadıköy Kültür Merkezi Şefliği", oneri: 8, sikayet: 2, fikir: 5, kampanya: 4, anket: 10, toplam: 29 }
-];
-
 interface LeagueRankingTableProps {
+  appState?: AppState;
   isKamu?: boolean | null;
 }
 
-export default function LeagueRankingTable({ isKamu }: LeagueRankingTableProps = {}) {
+export default function LeagueRankingTable({ appState, isKamu }: LeagueRankingTableProps) {
   const isLocked = isKamu !== undefined && isKamu !== null;
   const [activeSegment, setActiveSegment] = useState<"ozel" | "kamu">(
     isKamu ? "kamu" : "ozel"
   );
 
-  // Sync if isKamu prop changes
   useEffect(() => {
     if (isLocked) {
       setActiveSegment(isKamu ? "kamu" : "ozel");
@@ -82,8 +37,57 @@ export default function LeagueRankingTable({ isKamu }: LeagueRankingTableProps =
 
   const currentType = isLocked ? (isKamu ? "kamu" : "ozel") : activeSegment;
 
-  const datasetUlusal = currentType === "kamu" ? LEAGUE_TABLE_DATA_KAMU : LEAGUE_TABLE_DATA_OZEL;
-  const datasetYerel = currentType === "kamu" ? LOCAL_TABLE_DATA_KAMU : LOCAL_TABLE_DATA_OZEL;
+  // Compute dynamically from D1 appState
+  const candidates = appState?.businessCandidates || [];
+  const feedItems = appState?.feedItems || [];
+
+  const ozelCandidates = candidates.filter(c => c.sector === "Özel" || c.sector === "ozel" || c.sector === "Ozel");
+  const kamuCandidates = candidates.filter(c => c.sector === "Kamu" || c.sector === "kamu");
+
+  const mapToRow = (c: any): LeagueRow => {
+    const name = c.name;
+    const items = feedItems.filter(item => item.institution === name);
+    const oneri = items.filter(item => item.category === "Oneri" || item.category === "Öneri" || item.category === "Oneri" as any).length;
+    const sikayet = items.filter(item => item.category === "Sikayet" || item.category === "Şikayet").length;
+    const fikir = items.filter(item => item.category === "Fikir").length;
+    const kampanya = items.filter(item => item.category === "Kampanya" || item.category === "Campaign").length;
+    const anket = items.filter(item => item.category === "Anket").length;
+    const toplam = oneri + sikayet + fikir + kampanya + anket;
+
+    return {
+      rank: 0,
+      name,
+      oneri,
+      sikayet,
+      fikir,
+      kampanya,
+      anket,
+      toplam
+    };
+  };
+
+  let datasetUlusal = (currentType === "kamu" ? kamuCandidates : ozelCandidates)
+    .map(mapToRow)
+    .sort((a, b) => b.toplam - a.toplam);
+  
+  datasetUlusal.forEach((row, idx) => {
+    row.rank = idx + 1;
+  });
+
+  const isLocalRegion = (regionStr: string) => {
+    const r = (regionStr || "").toLowerCase();
+    return r.includes("ilçe") || r.includes("moda") || r.includes("şube") || r.includes("lokasyon") || r.includes("istanbul,") || r.includes("ankara,") || r.includes("izmir,");
+  };
+
+  let datasetYerel = (currentType === "kamu" ? kamuCandidates : ozelCandidates)
+    .filter(c => isLocalRegion(c.region || ""))
+    .map(mapToRow)
+    .sort((a, b) => b.toplam - a.toplam);
+
+  datasetYerel.forEach((row, idx) => {
+    row.rank = idx + 1;
+  });
+
   const typeLabel = currentType === "kamu" ? "Kamu" : "Özel Sektör";
 
   return (
@@ -156,27 +160,35 @@ export default function LeagueRankingTable({ isKamu }: LeagueRankingTableProps =
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-150">
-              {datasetUlusal.map((row) => (
-                <tr 
-                  key={`nat-${row.rank}-${row.name}`}
-                  className="hover:bg-neutral-50/60 transition-colors bg-white font-medium"
-                >
-                  <td className="px-5 py-3 text-center text-neutral-500 font-mono font-bold">
-                    {row.rank}.
-                  </td>
-                  <td className="px-5 py-3 font-semibold text-neutral-900">
-                    {row.name}
-                  </td>
-                  <td className="px-5 py-3 text-center text-emerald-650 font-mono font-bold">{row.oneri}</td>
-                  <td className="px-5 py-3 text-center text-red-600 font-mono font-bold">{row.sikayet}</td>
-                  <td className="px-5 py-3 text-center text-amber-600 font-mono font-bold">{row.fikir}</td>
-                  <td className="px-5 py-3 text-center text-violet-600 font-mono font-bold">{row.kampanya}</td>
-                  <td className="px-5 py-3 text-center text-teal-650 font-mono font-bold">{row.anket}</td>
-                  <td className="px-5 py-3 text-center bg-red-50/30 text-red-650 font-black text-sm font-display leading-none">
-                    {row.toplam}
+              {datasetUlusal.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-5 py-8 text-center text-neutral-400 font-semibold italic bg-white">
+                    Henüz bu ligde kayıtlı bir kurum/veri bulunmamaktadır.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                datasetUlusal.map((row) => (
+                  <tr 
+                    key={`nat-${row.rank}-${row.name}`}
+                    className="hover:bg-neutral-50/60 transition-colors bg-white font-medium"
+                  >
+                    <td className="px-5 py-3 text-center text-neutral-500 font-mono font-bold">
+                      {row.rank}.
+                    </td>
+                    <td className="px-5 py-3 font-semibold text-neutral-900">
+                      {row.name}
+                    </td>
+                    <td className="px-5 py-3 text-center text-emerald-655 font-mono font-bold">{row.oneri}</td>
+                    <td className="px-5 py-3 text-center text-red-600 font-mono font-bold">{row.sikayet}</td>
+                    <td className="px-5 py-3 text-center text-amber-600 font-mono font-bold">{row.fikir}</td>
+                    <td className="px-5 py-3 text-center text-violet-600 font-mono font-bold">{row.kampanya}</td>
+                    <td className="px-5 py-3 text-center text-teal-655 font-mono font-bold">{row.anket}</td>
+                    <td className="px-5 py-3 text-center bg-red-50/30 text-red-655 font-black text-sm font-display leading-none">
+                      {row.toplam}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -188,7 +200,7 @@ export default function LeagueRankingTable({ isKamu }: LeagueRankingTableProps =
         <div className="p-6 border-b border-neutral-150 bg-gradient-to-r from-emerald-50/40 via-white to-teal-50/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h4 className="font-display font-black text-lg text-neutral-900 flex items-center space-x-2">
-              <MapPin className="w-5 h-5 text-emerald-650" />
+              <MapPin className="w-5 h-5 text-emerald-655" />
               <span>📌 Yerel Katılım & Şeffaflık Ligi ({typeLabel})</span>
             </h4>
             <p className="text-xs text-neutral-500 mt-1">
@@ -217,27 +229,35 @@ export default function LeagueRankingTable({ isKamu }: LeagueRankingTableProps =
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-150">
-              {datasetYerel.map((row) => (
-                <tr 
-                  key={`loc-${row.rank}-${row.name}`}
-                  className="hover:bg-neutral-50/60 transition-colors bg-white font-medium"
-                >
-                  <td className="px-5 py-3 text-center text-neutral-500 font-mono font-bold">
-                    {row.rank}.
-                  </td>
-                  <td className="px-5 py-3 font-semibold text-neutral-900">
-                    {row.name}
-                  </td>
-                  <td className="px-5 py-3 text-center text-emerald-650 font-mono font-bold">{row.oneri}</td>
-                  <td className="px-5 py-3 text-center text-red-600 font-mono font-bold">{row.sikayet}</td>
-                  <td className="px-5 py-3 text-center text-amber-600 font-mono font-bold">{row.fikir}</td>
-                  <td className="px-5 py-3 text-center text-violet-600 font-mono font-bold">{row.kampanya}</td>
-                  <td className="px-5 py-3 text-center text-teal-650 font-mono font-bold">{row.anket}</td>
-                  <td className="px-5 py-3 text-center bg-emerald-50/30 text-emerald-650 font-black text-sm font-display leading-none">
-                    {row.toplam}
+              {datasetYerel.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-5 py-8 text-center text-neutral-400 font-semibold italic bg-white">
+                    Henüz bu ligde kayıtlı bir yerel birim bulunmamaktadır.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                datasetYerel.map((row) => (
+                  <tr 
+                    key={`loc-${row.rank}-${row.name}`}
+                    className="hover:bg-neutral-50/60 transition-colors bg-white font-medium"
+                  >
+                    <td className="px-5 py-3 text-center text-neutral-500 font-mono font-bold">
+                      {row.rank}.
+                    </td>
+                    <td className="px-5 py-3 font-semibold text-neutral-900">
+                      {row.name}
+                    </td>
+                    <td className="px-5 py-3 text-center text-emerald-655 font-mono font-bold">{row.oneri}</td>
+                    <td className="px-5 py-3 text-center text-red-600 font-mono font-bold">{row.sikayet}</td>
+                    <td className="px-5 py-3 text-center text-amber-600 font-mono font-bold">{row.fikir}</td>
+                    <td className="px-5 py-3 text-center text-violet-600 font-mono font-bold">{row.kampanya}</td>
+                    <td className="px-5 py-3 text-center text-teal-655 font-mono font-bold">{row.anket}</td>
+                    <td className="px-5 py-3 text-center bg-emerald-50/30 text-emerald-655 font-black text-sm font-display leading-none">
+                      {row.toplam}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -269,7 +289,7 @@ export default function LeagueRankingTable({ isKamu }: LeagueRankingTableProps =
             <span>🗳️</span>
             <span>Anketler</span>
           </div>
-          <div className="flex items-center space-x-1.5 font-extrabold text-indigo-650">
+          <div className="flex items-center space-x-1.5 font-extrabold text-indigo-600">
             <span>T</span>
             <span>Toplam Endeks</span>
           </div>

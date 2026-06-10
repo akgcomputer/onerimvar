@@ -156,7 +156,7 @@ export default function TransparencyLeague({
       </div>
 
       {/* Reusable Ulusal Şeffaflık Matris Ligi Table view (Requested) */}
-      <LeagueRankingTable />
+      <LeagueRankingTable appState={appState} />
 
     </div>
   );

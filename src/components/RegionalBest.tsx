@@ -6,38 +6,14 @@
 import React, { useState } from "react";
 import { ArrowLeft, Sparkles, AlertCircle, HeartHandshake, CheckCircle2, Trophy, Eye, VolumeX } from "lucide-react";
 import { getBrandLogoEmoji } from "./ActionCards";
+import { AppState } from "../types";
 
 interface RegionalBestProps {
+  appState: AppState;
   setView: (view: string) => void;
 }
 
-const EN_IYI_CANDIDATES = [
-  "Kadıköy Belediyesi Kültür Müdürlüğü",
-  "Çevre Şehircilik Bakanlığı İletişim Hattı",
-  "Metro İstanbul Kamu Hizmetleri",
-  "Türk Telekom Müşteri Çözüm Merkezi",
-  "Trendyol Çözüm Destek Ekibi",
-  "Aras Kargo Dağıtım Merkezi"
-];
-
-const EN_KOTU_CANDIDATES = [
-  "Sürat Kurye Dağıtım Birimi",
-  "İGDAŞ Altyapı Denetleme Şube",
-  "İBB İETT Otobüs Sefer Şefliği",
-  "MNG Kurye Çağrı Ofisi",
-  "Migros Mağaza Çözüm Birimi",
-  "Sürat Kargo Operatör Grubu"
-];
-
-const PROJE_CANDIDATES = [
-  "Kadıköy Akıllı Kapsül Kütüphane Projesi",
-  "Topluluk Dayanışması Atık Azaltma Girişimi",
-  "Akıllı Akbil Atık Geri Dönüşüm Kutusu",
-  "Moda Parkı Doğa Dostu Oyun Parkı",
-  "Kentsel Atık Akıllı Ayrıştırma Tesisi"
-];
-
-export default function RegionalBest({ setView }: RegionalBestProps) {
+export default function RegionalBest({ appState, setView }: RegionalBestProps) {
   const [selectedBest, setSelectedBest] = useState("");
   const [selectedWorst, setSelectedWorst] = useState("");
   const [selectedProject, setSelectedProject] = useState("");
@@ -50,6 +26,17 @@ export default function RegionalBest({ setView }: RegionalBestProps) {
     }
     setHasVoted(true);
   };
+
+  // Compute lists dynamically from D1
+  const candidates = appState?.businessCandidates || [];
+  const feedItems = appState?.feedItems || [];
+
+  const enIyiCandidates = candidates.map(c => c.name);
+  const enKotuCandidates = candidates.map(c => c.name);
+  const projeCandidates = feedItems
+    .filter(item => item.category === "Oneri" || item.category === "Öneri" || item.category === "Kampanya" || item.category === "Campaign")
+    .slice(0, 6)
+    .map(item => item.title);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 animate-fade-in" id="regional-best-page">
@@ -84,13 +71,13 @@ export default function RegionalBest({ setView }: RegionalBestProps) {
       </div>
 
       {hasVoted ? (
-        <div className="bg-emerald-50 border border-emerald-250 p-8 rounded-3xl text-center space-y-5 animate-scale-up">
+        <div className="bg-emerald-55 bg-emerald-50 border border-emerald-250 p-8 rounded-3xl text-center space-y-5 animate-scale-up">
           <div className="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-8 h-8" />
           </div>
           <h2 className="font-display font-extrabold text-xl text-neutral-900">Bölgesel Tercihleriniz Komisyona İletildi!</h2>
           <p className="text-xs text-neutral-600 max-w-md mx-auto leading-normal">
-            Katılımınız için çok teşekkür ederiz. Kararlarınız anonimleştirilerek diğer katılım verileriyle birlikte veri analitiği sitemizde işlenecektir.
+            Katılıminiz için çok teşekkür ederiz. Kararlarınız anonimleştirilerek diğer katılım verileriyle birlikte veri analitiği sitemizde işlenecektir.
           </p>
           <div className="bg-white p-5 rounded-2xl border border-neutral-200 text-left space-y-2 max-w-sm mx-auto text-xs font-mono">
             <p className="font-bold border-b border-neutral-100 pb-1 text-neutral-400 text-[10px]">VERİBİLİM KATILIM RAPORU</p>
@@ -127,20 +114,24 @@ export default function RegionalBest({ setView }: RegionalBestProps) {
               <p className="text-[11px] text-neutral-400 mb-4 leading-relaxed">Önerileri en hızlı cevaplayan ve yapıcı adımlar atan marka/kurum.</p>
               
               <div className="space-y-1.5">
-                {EN_IYI_CANDIDATES.map((cand) => (
-                  <button
-                    key={cand}
-                    onClick={() => setSelectedBest(cand)}
-                    className={`w-full text-left p-2.5 rounded-xl border text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
-                      selectedBest === cand
-                        ? "bg-emerald-50 border-emerald-500 text-emerald-800"
-                        : "bg-neutral-50 hover:bg-neutral-100 border-neutral-200 text-neutral-700"
-                    }`}
-                  >
-                    <span>{getBrandLogoEmoji(cand)}</span>
-                    <span className="truncate">{cand}</span>
-                  </button>
-                ))}
+                {enIyiCandidates.length === 0 ? (
+                  <p className="text-xs text-neutral-400 font-semibold italic py-4">Henüz kayıtlı bir kurum/firma bulunmamaktadır.</p>
+                ) : (
+                  enIyiCandidates.map((cand) => (
+                    <button
+                      key={cand}
+                      onClick={() => setSelectedBest(cand)}
+                      className={`w-full text-left p-2.5 rounded-xl border text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
+                        selectedBest === cand
+                          ? "bg-emerald-50/50 border-emerald-500 text-emerald-800"
+                          : "bg-neutral-50 hover:bg-neutral-100 border-neutral-200 text-neutral-700"
+                      }`}
+                    >
+                      <span>{getBrandLogoEmoji(cand)}</span>
+                      <span className="truncate">{cand}</span>
+                    </button>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -160,20 +151,24 @@ export default function RegionalBest({ setView }: RegionalBestProps) {
               <p className="text-[11px] text-neutral-400 mb-4 leading-relaxed">Başvuruları yanıtsız bırakan ve çözüm üretmeyen işletme veya kurum.</p>
               
               <div className="space-y-1.5">
-                {EN_KOTU_CANDIDATES.map((cand) => (
-                  <button
-                    key={cand}
-                    onClick={() => setSelectedWorst(cand)}
-                    className={`w-full text-left p-2.5 rounded-xl border text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
-                      selectedWorst === cand
-                        ? "bg-rose-50 border-rose-500 text-rose-800"
-                        : "bg-neutral-50 hover:bg-neutral-100 border-neutral-200 text-neutral-700"
-                    }`}
-                  >
-                    <span>{getBrandLogoEmoji(cand)}</span>
-                    <span className="truncate">{cand}</span>
-                  </button>
-                ))}
+                {enKotuCandidates.length === 0 ? (
+                  <p className="text-xs text-neutral-400 font-semibold italic py-4">Henüz kayıtlı bir kurum/firma bulunmamaktadır.</p>
+                ) : (
+                  enKotuCandidates.map((cand) => (
+                    <button
+                      key={cand}
+                      onClick={() => setSelectedWorst(cand)}
+                      className={`w-full text-left p-2.5 rounded-xl border text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
+                        selectedWorst === cand
+                          ? "bg-rose-50 border-rose-500 text-rose-800"
+                          : "bg-neutral-50 hover:bg-neutral-100 border-neutral-200 text-neutral-700"
+                      }`}
+                    >
+                      <span>{getBrandLogoEmoji(cand)}</span>
+                      <span className="truncate">{cand}</span>
+                    </button>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -193,20 +188,24 @@ export default function RegionalBest({ setView }: RegionalBestProps) {
               <p className="text-[11px] text-neutral-400 mb-4 leading-relaxed">Halkın refahını ve yaşam standartlarını en olumlu etkileyen yerel çalışma.</p>
               
               <div className="space-y-1.5">
-                {PROJE_CANDIDATES.map((cand) => (
-                  <button
-                    key={cand}
-                    onClick={() => setSelectedProject(cand)}
-                    className={`w-full text-left p-2.5 rounded-xl border text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
-                      selectedProject === cand
-                        ? "bg-indigo-50 border-indigo-500 text-indigo-800"
-                        : "bg-neutral-50 hover:bg-neutral-100 border-neutral-200 text-neutral-700"
-                    }`}
-                  >
-                    <span>{getBrandLogoEmoji(cand)}</span>
-                    <span className="truncate">{cand}</span>
-                  </button>
-                ))}
+                {projeCandidates.length === 0 ? (
+                  <p className="text-xs text-neutral-400 font-semibold italic py-4">Henüz kayıtlı bir öneri veya proje bulunmamaktadır.</p>
+                ) : (
+                  projeCandidates.map((cand) => (
+                    <button
+                      key={cand}
+                      onClick={() => setSelectedProject(cand)}
+                      className={`w-full text-left p-2.5 rounded-xl border text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
+                        selectedProject === cand
+                          ? "bg-indigo-50/50 border-indigo-500 text-indigo-800"
+                          : "bg-neutral-50 hover:bg-neutral-100 border-neutral-200 text-neutral-700"
+                      }`}
+                    >
+                      <span>{getBrandLogoEmoji(cand)}</span>
+                      <span className="truncate">{cand}</span>
+                    </button>
+                  ))
+                )}
               </div>
             </div>
           </div>

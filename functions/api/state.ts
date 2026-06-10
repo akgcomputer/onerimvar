@@ -18,7 +18,7 @@ export async function onRequestGet(context: any) {
     const reportStats = await db.prepare("SELECT * FROM report_stats LIMIT 1").first();
 
     // 4. Fetch business candidates
-    const candidatesResult = await db.prepare("SELECT * FROM business_candidates ORDER BY votes DESC").all();
+    const candidatesResult = await db.prepare("SELECT * FROM business_candidates WHERE approved = 1 ORDER BY votes DESC").all();
     const businessCandidates = candidatesResult.results.map((row: any) => ({
       id: row.id,
       icon: row.icon,

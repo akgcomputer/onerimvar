@@ -5,29 +5,25 @@
 
 import React, { useState } from "react";
 import { 
-  Landmark, 
-  Building2, 
   Lock, 
   ArrowRight, 
-  ShieldCheck, 
   Mail, 
-  FileText, 
   Activity, 
-  Trophy, 
-  Zap, 
-  TrendingUp, 
-  UserCheck, 
   Check, 
   AlertCircle,
-  HelpCircle
+  HelpCircle,
+  Zap
 } from "lucide-react";
+import { AppState } from "../types";
 
 interface BusinessLoginFormProps {
+  appState: AppState;
   onLoginSuccess: (name: string, role: string) => void;
   setView: (view: string) => void;
 }
 
 export default function BusinessLoginForm({
+  appState,
   onLoginSuccess,
   setView
 }: BusinessLoginFormProps) {
@@ -130,13 +126,10 @@ export default function BusinessLoginForm({
       setRegError("Lütfen e-postanıza gönderilen geçerli aktivasyon kodunu giriniz.");
       return;
     }
-    onLoginSuccess(regTitle, "Business");
-    setView("business-dashboard");
-  };
-
-  const handleQuickLogin = (brand: string) => {
-    onLoginSuccess(brand, "Business");
-    setView("business-dashboard");
+    alert("Kurumsal hesabınız başarıyla oluşturuldu ve onay sırasına alındı! Yönetici onayından sonra giriş yapabilirsiniz.");
+    setActiveTab("login");
+    setRegSuccess(false);
+    setActivationCode("");
   };
 
   return (
@@ -145,7 +138,7 @@ export default function BusinessLoginForm({
       {/* Informative Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* LEFT COLUMN: ACTIVE LOGIN & INITIAL APPLICATION STAGE (7 Slots) */}
+        {/* LEFT COLUMN: ACTIVE LOGIN & INITIAL APPLICATION STAGE */}
         <div className="lg:col-span-7 space-y-6">
           
           {/* Main header */}
@@ -180,7 +173,7 @@ export default function BusinessLoginForm({
                 className={`flex-1 py-3.5 px-4 rounded-xl text-sm font-black transition-all cursor-pointer flex items-center justify-center space-x-2 ${
                   activeTab === "register"
                     ? "bg-gradient-to-r from-fuchsia-600 to-indigo-950 text-white shadow-md border border-fuchsia-700"
-                    : "bg-fuchsia-150 text-fuchsia-950 hover:bg-fuchsia-200 border-2 border-fuchsia-400"
+                    : "text-neutral-600 hover:text-neutral-900 border-0 bg-transparent"
                 }`}
               >
                 <Zap className="w-4 h-4 text-amber-300 animate-bounce" />
@@ -192,7 +185,7 @@ export default function BusinessLoginForm({
             {activeTab === "login" && (
               <div className="p-8 space-y-6" id="login-subpanel">
                 
-                {/* Sector Switch Type as simple Radio buttons */}
+                {/* Sector Switch Type */}
                 <div className="space-y-2">
                   <span className="block text-xs font-black uppercase text-slate-650 tracking-wider">Kurum Sınıflandırması Seçiniz</span>
                   <div className="flex items-center space-x-6 py-3 bg-neutral-50 px-4 rounded-xl border border-neutral-200">
@@ -276,7 +269,7 @@ export default function BusinessLoginForm({
                     </button>
                   </div>
 
-                  {/* Submit Button (RED/Kırmızı, hover: Siyah) */}
+                  {/* Submit Button */}
                   <button
                     type="submit"
                     className="w-full bg-red-600 hover:bg-black text-white font-black py-3.5 rounded-xl text-sm tracking-wide shadow-md flex items-center justify-center space-x-2 cursor-pointer transition-all mt-2"
@@ -292,39 +285,10 @@ export default function BusinessLoginForm({
 
                 </form>
 
-                {/* Quick Demos selection */}
-                <div className="pt-4 border-t border-neutral-200">
-                  <span className="block text-[9px] font-black uppercase tracking-widest text-neutral-400 text-center mb-3">HIZLI SİMÜLE YETKİLİ DEĞERLERİ</span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleQuickLogin("Kadıköy Belediyesi")}
-                      className="py-2.5 px-4 bg-neutral-50 hover:bg-neutral-100/80 border border-neutral-250 text-neutral-800 text-xs font-black rounded-xl text-left flex items-center justify-between cursor-pointer"
-                    >
-                      <span className="flex items-center space-x-1.5">
-                        <span>🏛️</span>
-                        <span>Kadıköy Belediyesi</span>
-                      </span>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-black">Kamu</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleQuickLogin("TrendExpress Dağıtım")}
-                      className="py-2.5 px-4 bg-neutral-50 hover:bg-neutral-100/80 border border-neutral-250 text-neutral-800 text-xs font-black rounded-xl text-left flex items-center justify-between cursor-pointer"
-                    >
-                      <span className="flex items-center space-x-1.5">
-                        <span>🏢</span>
-                        <span>TrendExpress Dağıtım</span>
-                      </span>
-                      <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-black">Özel</span>
-                    </button>
-                  </div>
-                </div>
-
               </div>
             )}
 
-            {/* TAB-2: REGISTER PANEL ("İlk Adım Başvurusu") */}
+            {/* TAB-2: REGISTER PANEL */}
             {activeTab === "register" && (
               <div className="p-8 space-y-6" id="register-subpanel">
                 
@@ -341,7 +305,6 @@ export default function BusinessLoginForm({
                   </div>
                 )}
 
-                {/* Simulated Success step with active OTP Input */}
                 {regSuccess ? (
                   <div className="space-y-4 animate-scale-up border p-6 rounded-2xl bg-emerald-50/50 border-emerald-300">
                     <div className="text-center space-y-2">
@@ -365,7 +328,7 @@ export default function BusinessLoginForm({
                         onClick={handleCompleteActivation}
                         className="w-full bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black py-2.5 rounded-xl cursor-pointer"
                       >
-                        Aktivasyonu Tamamla ve Giriş Yap
+                        Aktivasyonu Tamamla ve Onay Bekle
                       </button>
                     </div>
                   </div>
@@ -380,7 +343,7 @@ export default function BusinessLoginForm({
                         className={`py-3 px-4 rounded-xl text-sm font-bold cursor-pointer transition-colors ${
                           regSector === "ozel"
                             ? "bg-blue-600 text-white shadow-md border-0 font-black"
-                            : "bg-blue-100 text-blue-950 hover:bg-blue-200 border border-blue-250"
+                            : "bg-blue-105 text-blue-950 hover:bg-blue-200 border border-blue-250"
                         }`}
                       >
                         🏢 Özel/KOBİ Başvuru
@@ -391,7 +354,7 @@ export default function BusinessLoginForm({
                         className={`py-3 px-4 rounded-xl text-sm font-bold cursor-pointer transition-all ${
                           regSector === "kamu"
                             ? "bg-emerald-600 text-white shadow-md border-0 font-black animate-scale-up"
-                            : "bg-emerald-100 text-emerald-950 hover:bg-emerald-200 border-2 border-emerald-400"
+                            : "bg-emerald-105 text-emerald-950 hover:bg-emerald-200 border border-emerald-400"
                         }`}
                       >
                         🏛️ Kamu/Belediye Başvuru
@@ -441,7 +404,7 @@ export default function BusinessLoginForm({
                           className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-xl text-sm font-semibold"
                         />
                         {regSector === "kamu" && (
-                          <span className="block text-[10px] text-red-650 font-black mt-1">
+                          <span className="block text-[10px] text-red-655 font-black mt-1">
                             * Kamu güvenlik kuralları gereği .gov.tr veya .bel.tr zorunludur.
                           </span>
                         )}
@@ -465,7 +428,7 @@ export default function BusinessLoginForm({
 
                     <button
                       type="submit"
-                      className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 px-4 rounded-xl text-sm cursor-pointer flex items-center justify-center space-x-1.5 mt-2 transition-colors"
+                      className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 px-4 rounded-xl text-sm cursor-pointer flex items-center justify-center space-x-1.5 mt-2 transition-colors border-0"
                     >
                       <Mail className="w-4 h-4" />
                       <span>E-Posta Onay Kodu Gönder & Aktivasyon Başlat</span>
@@ -481,11 +444,11 @@ export default function BusinessLoginForm({
 
         </div>
 
-        {/* RIGHT COLUMN: CANLI GÜVEN GÖSTERGELERİ VE ENDEKS VERİLERİ (5 Slots) */}
+        {/* RIGHT COLUMN: CANLI GÜVEN GÖSTERGELERİ VE ENDEKS VERİLERİ */}
         <div className="lg:col-span-5 space-y-6">
           
           {/* Section 1: Canlı Güven ve Şeffaflık Lig İstatistikleri */}
-          <div className="bg-white p-6 border border-neutral-250 rounded-3xl shadow-sm space-y-4" id="live-trust-stats">
+          <div className="bg-white p-6 border border-neutral-255 rounded-3xl shadow-sm space-y-4" id="live-trust-stats">
             <h3 className="font-display font-black text-sm uppercase text-indigo-950 flex items-center space-x-2">
               <Activity className="w-5 h-5 text-emerald-600 animate-pulse" />
               <span>Güven ve Şeffaflık Canlı Endeks Verileri</span>
@@ -494,23 +457,29 @@ export default function BusinessLoginForm({
             <div className="grid grid-cols-2 gap-3 text-left">
               <div className="p-3.5 bg-neutral-50 border border-neutral-200 rounded-2xl">
                 <span className="block text-[10px] uppercase font-bold text-neutral-400">Üye Kurum & Marka</span>
-                <span className="block font-display font-black text-lg text-slate-800">1,420+ Adet</span>
-                <span className="block text-[9px] text-emerald-600 font-bold">🟢 %99 Aktif Katılım</span>
+                <span className="block font-display font-black text-lg text-slate-800">
+                  {appState.siteSettings.statApprovedCount || "0 Onaylı Kurum"}
+                </span>
+                <span className="block text-[9px] text-emerald-600 font-bold">🟢 Canlı Akış Aktif</span>
               </div>
               <div className="p-3.5 bg-neutral-50 border border-neutral-200 rounded-2xl">
-                <span className="block text-[10px] uppercase font-bold text-neutral-400">Ortalama Çözüm Hızı</span>
-                <span className="block font-display font-black text-lg text-slate-800">4.8 Saat</span>
-                <span className="block text-[9px] text-indigo-600 font-bold">⏱️ Türkiye Rekoru</span>
+                <span className="block text-[10px] uppercase font-bold text-neutral-400">Geri Dönüş Oranı</span>
+                <span className="block font-display font-black text-lg text-slate-850">
+                  {appState.siteSettings.statResolveRate || "%0"}
+                </span>
+                <span className="block text-[9px] text-indigo-600 font-bold">⏱️ Çözüm Endeksi</span>
               </div>
               <div className="p-3.5 bg-neutral-50 border border-neutral-200 rounded-2xl">
-                <span className="block text-[10px] uppercase font-bold text-neutral-400">Memnuniyet Bonusu</span>
-                <span className="block font-display font-black text-lg text-slate-800">2.1 Milyon ₺</span>
-                <span className="block text-[9px] text-amber-600 font-bold font-mono">🏆 Dağıtılan Alışveriş Kuponları</span>
+                <span className="block text-[10px] uppercase font-bold text-neutral-400">Memnuniyet Oranı</span>
+                <span className="block font-display font-black text-lg text-slate-800">%0 Başarı</span>
+                <span className="block text-[9px] text-amber-600 font-bold font-mono">🏆 Gerçek Zamanlı</span>
               </div>
               <div className="p-3.5 bg-neutral-50 border border-neutral-200 rounded-2xl">
-                <span className="block text-[10px] uppercase font-bold text-neutral-400">Kamu Değerlendirme</span>
-                <span className="block font-display font-black text-lg text-slate-800">120+ Belediye</span>
-                <span className="block text-[9px] text-violet-600 font-bold">🏛️ Şeffaf Kamu Masası</span>
+                <span className="block text-[10px] uppercase font-bold text-neutral-400">Değerlendirilen Kamu</span>
+                <span className="block font-display font-black text-lg text-slate-800">
+                  {appState.siteSettings.statMunicipalityCount || "0 Belediye"}
+                </span>
+                <span className="block text-[9px] text-violet-600 font-bold">🏛️ Şeffaf İdare</span>
               </div>
             </div>
           </div>

@@ -15,11 +15,11 @@ export async function onRequestPost(context: any) {
 
     const id = "usr-" + Date.now();
     await db.prepare(`
-      INSERT INTO users (id, email, password, full_name, phone, role, avatar, unvan, created_at)
-      VALUES (?, ?, ?, ?, ?, 'User', '👤', 'Kent Gönüllüsü', ?)
+      INSERT INTO users (id, email, password, full_name, phone, role, avatar, unvan, approved, created_at)
+      VALUES (?, ?, ?, ?, ?, 'User', '👤', 'Kent Gönüllüsü', 0, ?)
     `).bind(id, email, password, fullName, phone, new Date().toISOString()).run();
 
-    return new Response(JSON.stringify({ success: true, user: { fullName, email, role: "User" } }), {
+    return new Response(JSON.stringify({ success: true }), {
       headers: { "Content-Type": "application/json" }
     });
   } catch (err: any) {

@@ -489,7 +489,7 @@ export default function NabizVeLig({
 
         {/* Reusable Ulusal Şeffaflık Matris Ligi Table view (Requested) */}
         <div className="mt-12">
-          <LeagueRankingTable />
+          <LeagueRankingTable appState={appState} />
         </div>
 
       </div>

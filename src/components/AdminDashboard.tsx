@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AppState, LeagueItem, SocialFeedItem, FeedType } from "../types";
 import { 
   FileText, 
@@ -27,7 +27,8 @@ import {
   Send,
   Building,
   User,
-  Heart
+  Heart,
+  UserCheck
 } from "lucide-react";
 
 interface AdminDashboardProps {
@@ -60,10 +61,104 @@ export default function AdminDashboard({
   onAddFeedItem
 }: AdminDashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"vitrin" | "oneriler" | "leagues" | "db">("vitrin");
+  const [activeTab, setActiveTab] = useState<"vitrin" | "oneriler" | "leagues" | "db" | "onaylar">("vitrin");
   
   // For Poll management state
   const [pollInput, setPollInput] = useState(appState.weeklyPoll.question);
+
+  // For account approval management
+  const [accounts, setAccounts] = useState<{ users: any[]; businesses: any[] }>({ users: [], businesses: [] });
+  const [loadingAccounts, setLoadingAccounts] = useState(false);
+
+  const fetchAccounts = () => {
+    setLoadingAccounts(true);
+    fetch("/api/admin-accounts")
+      .then(res => res.json())
+      .then(data => {
+        if (data && !data.error) {
+          setAccounts(data);
+        }
+        setLoadingAccounts(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch admin accounts:", err);
+        setLoadingAccounts(false);
+      });
+  };
+
+  useEffect(() => {
+    if (activeTab === "onaylar") {
+      fetchAccounts();
+    }
+  }, [activeTab]);
+
+  const handleApproveUser = (id: string) => {
+    fetch("/api/action", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "approveUser", payload: { id } })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        triggerNotifier("Kullanıcı hesabı başarıyla onaylandı.");
+        fetchAccounts();
+      } else {
+        alert("Onaylanırken hata oluştu: " + data.error);
+      }
+    });
+  };
+
+  const handleApproveBusiness = (id: string) => {
+    fetch("/api/action", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "approveBusiness", payload: { id } })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        triggerNotifier("Kurumsal işletme hesabı başarıyla onaylandı.");
+        fetchAccounts();
+      } else {
+        alert("Onaylanırken hata oluştu: " + data.error);
+      }
+    });
+  };
+
+  const handleDeleteUser = (id: string) => {
+    if (confirm("Bu kullanıcı hesabını tamamen silmek istediğinizden emin misiniz?")) {
+      fetch("/api/action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "deleteUser", payload: { id } })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          triggerNotifier("Kullanıcı hesabı silindi.");
+          fetchAccounts();
+        }
+      });
+    }
+  };
+
+  const handleDeleteBusiness = (id: string) => {
+    if (confirm("Bu kurumsal hesabı tamamen silmek istediğinizden emin misiniz?")) {
+      fetch("/api/action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "deleteBusiness", payload: { id } })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          triggerNotifier("Kurumsal hesap ve bağlı adaylık silindi.");
+          fetchAccounts();
+        }
+      });
+    }
+  };
   
   // For PDF management state
   const [pdfInput, setPdfInput] = useState(appState.reportPdfName);
@@ -303,6 +398,16 @@ export default function AdminDashboard({
             >
               <Database className="w-4 h-4" />
               <span>Sistem & Kayıt Verileri</span>
+            </button>
+
+            <button
+              onClick={() => { setActiveTab("onaylar"); setSidebarOpen(false); }}
+              className={`w-full flex items-center space-x-2.5 p-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                activeTab === "onaylar" ? "bg-rose-800 text-white shadow-inner" : "text-rose-200 hover:bg-rose-900"
+              }`}
+            >
+              <UserCheck className="w-4 h-4" />
+              <span>Üye & Kurum Onayları</span>
             </button>
           </nav>
 
@@ -1076,6 +1181,122 @@ export default function AdminDashboard({
               Database Engine: LocalStorage Synced Blueprint <br />
               Encryption: RSA-256 Enabled
             </div>
+          </div>
+        )}
+
+        {/* TAB 5: ÜYE & KURUM ONAYLARI */}
+        {activeTab === "onaylar" && (
+          <div className="space-y-6" id="admin-onaylar-panel">
+            <div>
+              <h3 className="font-display font-black text-2xl text-rose-955">Üye & Kurum Onayları</h3>
+              <p className="text-xs text-stone-500 mt-1">Platforma yeni kayıt olan vatandaş ve kurumsal hesapların yetkilendirme ve onay süreçlerini yönetin.</p>
+            </div>
+
+            {loadingAccounts ? (
+              <div className="p-12 text-center text-rose-950 font-bold text-xs flex items-center justify-center space-x-2">
+                <RefreshCw className="w-5 h-5 animate-spin" />
+                <span>Hesaplar Yükleniyor...</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* Sol Kısım: Kurumsal Başvurular */}
+                <div className="bg-white p-6 border border-neutral-100 rounded-3xl shadow-xs space-y-4">
+                  <h4 className="font-display font-bold text-sm text-stone-900 pb-2 border-b border-stone-50 flex items-center space-x-1.5">
+                    <span>🏢 Kurumsal İşletme Başvuruları</span>
+                  </h4>
+                  
+                  <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
+                    {accounts.businesses.length === 0 ? (
+                      <p className="text-xs text-neutral-400 font-semibold italic">Kayıtlı kurumsal hesap bulunmamaktadır.</p>
+                    ) : (
+                      accounts.businesses.map((biz) => (
+                        <div key={biz.id} className="p-4 bg-neutral-50/50 rounded-2xl border border-neutral-100 flex flex-col justify-between gap-3 text-xs leading-relaxed">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-neutral-805 text-sm">{biz.name}</span>
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                              biz.approved === 1 ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
+                            }`}>
+                              {biz.approved === 1 ? "Onaylı" : "Onay Bekliyor"}
+                            </span>
+                          </div>
+                          <div className="text-neutral-500 font-mono space-y-0.5 text-[11px]">
+                            <div><strong>Sektör:</strong> {biz.sector === "kamu" ? "🏛️ Kamu / Belediye" : "🏢 Özel / Marka"}</div>
+                            <div><strong>E-Posta:</strong> {biz.email}</div>
+                            <div><strong>Sicil / DETSİS:</strong> {biz.taxOrDetsis}</div>
+                            <div><strong>Kayıt Tarihi:</strong> {new Date(biz.createdAt).toLocaleDateString("tr-TR")}</div>
+                          </div>
+                          <div className="flex items-center space-x-2 pt-2 border-t border-neutral-100/60 justify-end">
+                            {biz.approved === 0 && (
+                              <button
+                                onClick={() => handleApproveBusiness(biz.id)}
+                                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10.5px] rounded-lg cursor-pointer transition border-0"
+                              >
+                                Onayla ✔️
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteBusiness(biz.id)}
+                              className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[10.5px] rounded-lg cursor-pointer transition border border-rose-200"
+                            >
+                              Sil 🗑️
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Sağ Kısım: Bireysel Vatandaş Üyeler */}
+                <div className="bg-white p-6 border border-neutral-100 rounded-3xl shadow-xs space-y-4">
+                  <h4 className="font-display font-bold text-sm text-stone-900 pb-2 border-b border-stone-50 flex items-center space-x-1.5">
+                    <span>👤 Vatandaş Üye Kayıtları</span>
+                  </h4>
+                  
+                  <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
+                    {accounts.users.length === 0 ? (
+                      <p className="text-xs text-neutral-400 font-semibold italic">Kayıtlı vatandaş üye bulunmamaktadır.</p>
+                    ) : (
+                      accounts.users.map((usr) => (
+                        <div key={usr.id} className="p-4 bg-neutral-50/50 rounded-2xl border border-neutral-100 flex flex-col justify-between gap-3 text-xs leading-relaxed">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-neutral-805 text-sm">{usr.fullName}</span>
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                              usr.approved === 1 ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
+                            }`}>
+                              {usr.approved === 1 ? "Onaylı" : "Onay Bekliyor"}
+                            </span>
+                          </div>
+                          <div className="text-neutral-500 font-mono space-y-0.5 text-[11px]">
+                            <div><strong>E-Posta:</strong> {usr.email}</div>
+                            <div><strong>Telefon:</strong> +90 {usr.phone}</div>
+                            <div><strong>Kayıt Tarihi:</strong> {new Date(usr.createdAt).toLocaleDateString("tr-TR")}</div>
+                          </div>
+                          <div className="flex items-center space-x-2 pt-2 border-t border-neutral-100/60 justify-end">
+                            {usr.approved === 0 && (
+                              <button
+                                onClick={() => handleApproveUser(usr.id)}
+                                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10.5px] rounded-lg cursor-pointer transition border-0"
+                              >
+                                Onayla ✔️
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteUser(usr.id)}
+                              className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[10.5px] rounded-lg cursor-pointer transition border border-rose-200"
+                            >
+                              Sil 🗑️
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            )}
           </div>
         )}
 

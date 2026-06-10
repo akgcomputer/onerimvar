@@ -22,6 +22,13 @@ export async function onRequestPost(context: any) {
       });
     }
 
+    if (business.approved === 0) {
+      return new Response(JSON.stringify({ success: false, error: "Kurumsal hesabınız henüz yönetici tarafından onaylanmamıştır." }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
     return new Response(JSON.stringify({ 
       success: true, 
       user: { 

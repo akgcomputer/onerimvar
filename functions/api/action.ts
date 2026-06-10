@@ -132,6 +132,24 @@ export async function onRequestPost(context: any) {
         await db.prepare(`UPDATE feed_items SET ${dbKey} = ? WHERE id = ?`).bind(dbValue, id).run();
       }
     }
+    else if (type === "approveUser") {
+      const { id } = payload;
+      await db.prepare("UPDATE users SET approved = 1 WHERE id = ?").bind(id).run();
+    }
+    else if (type === "approveBusiness") {
+      const { id } = payload;
+      await db.prepare("UPDATE businesses SET approved = 1 WHERE id = ?").bind(id).run();
+      await db.prepare("UPDATE business_candidates SET approved = 1 WHERE id = ?").bind(id).run();
+    }
+    else if (type === "deleteUser") {
+      const { id } = payload;
+      await db.prepare("DELETE FROM users WHERE id = ?").bind(id).run();
+    }
+    else if (type === "deleteBusiness") {
+      const { id } = payload;
+      await db.prepare("DELETE FROM businesses WHERE id = ?").bind(id).run();
+      await db.prepare("DELETE FROM business_candidates WHERE id = ?").bind(id).run();
+    }
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { "Content-Type": "application/json" }

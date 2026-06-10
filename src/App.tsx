@@ -473,6 +473,7 @@ export default function App() {
         {currentView === "business-login" && (
           <div className="animate-fade-in" id="view-business-login">
             <BusinessLoginForm
+              appState={appState}
               onLoginSuccess={handleLoginSuccess}
               setView={setView}
             />
@@ -522,6 +523,7 @@ export default function App() {
         {currentView === "bolgesel-enler" && (
           <div className="animate-fade-in" id="view-bolgesel-enler">
             <RegionalBest
+              appState={appState}
               setView={setView}
             />
           </div>

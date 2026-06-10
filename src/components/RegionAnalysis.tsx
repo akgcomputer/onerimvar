@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Smile, Meh, Frown, CheckCircle, ArrowLeft, MapPin, BarChart3, Clock, Vote } from "lucide-react";
 import { SocialFeedItem, FeedType } from "../types";
 import { TURKISH_COMMUNITIES, getBrandLogoEmoji } from "./ActionCards";
@@ -24,6 +24,47 @@ export default function RegionAnalysis({
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [satisfactionVote, setSatisfactionVote] = useState<string | null>(null);
   const [satisfactionStats, setSatisfactionStats] = useState({ happy: 142, neutral: 52, sad: 78 });
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`);
+            const data = await response.json();
+            if (data && data.address) {
+              const city = data.address.province || data.address.city || data.address.state || "İstanbul";
+              const town = data.address.suburb || data.address.town || data.address.county || "Kadıköy";
+              setSelectedCity(`${city}, ${town}`);
+            }
+          } catch (err) {
+            console.error("OSM Reverse Geocoding failed, trying IP lookup:", err);
+            fetchIpLocation();
+          }
+        },
+        (error) => {
+          console.warn("Geolocation denied or failed, trying IP lookup:", error);
+          fetchIpLocation();
+        }
+      );
+    } else {
+      fetchIpLocation();
+    }
+
+    async function fetchIpLocation() {
+      try {
+        const response = await fetch("https://ipapi.co/json/");
+        const data = await response.json();
+        if (data && data.city) {
+          const region = data.region || "Kadıköy";
+          setSelectedCity(`${data.city}, ${region}`);
+        }
+      } catch (err) {
+        console.error("IP geolocation failed:", err);
+      }
+    }
+  }, []);
 
   const handleVoteSatisfaction = (type: "happy" | "neutral" | "sad") => {
     if (satisfactionVote) return;
