@@ -37,10 +37,10 @@ export default function UserLoginPopup({
         setErrorMsg("Lütfen tüm alanları doldurunuz.");
         return;
       }
-      // Phone number validation: must be exactly 7 digits
+      // Phone number validation: must be at least 10 digits
       const sanitizedPhone = phone.replace(/\D/g, "");
-      if (sanitizedPhone.length !== 7) {
-        setErrorMsg("Cep Telefon Numaranız tam olarak 7 haneli olmalıdır (Örn: 5551234).");
+      if (sanitizedPhone.length < 10 || sanitizedPhone.length > 11) {
+        setErrorMsg("Cep Telefon Numaranız en az 10 haneli olmalıdır (Örn: 05XX XXX XX XX).");
         return;
       }
 
@@ -100,8 +100,8 @@ export default function UserLoginPopup({
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, "");
-    // Maximum 7 digits restriction
-    if (val.length <= 7) {
+    // Maximum 11 digits restriction
+    if (val.length <= 11) {
       setPhone(val);
     }
   };
@@ -174,10 +174,10 @@ export default function UserLoginPopup({
                   </div>
                 </div>
 
-                {/* Cep Telefonu - exactly 7 digits */}
+                {/* Cep Telefonu - at least 10 digits */}
                 <div>
                   <label className="block text-[11px] font-bold text-neutral-700 uppercase tracking-wider mb-1">
-                    🔒 Cep Telefon Numaranız (7 haneli olmalı)
+                    🔒 Cep Telefon Numaranız
                   </label>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-400">
@@ -188,7 +188,7 @@ export default function UserLoginPopup({
                       required
                       value={phone}
                       onChange={handlePhoneChange}
-                      placeholder="Örn: 5551234"
+                      placeholder="05XX XXX XX XX"
                       className="w-full pl-10 pr-4 py-2 rounded-xl border border-neutral-200 focus:outline-hidden focus:border-emerald-600 text-xs font-mono"
                     />
                   </div>

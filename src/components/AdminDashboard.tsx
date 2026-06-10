@@ -28,7 +28,8 @@ import {
   Building,
   User,
   Heart,
-  UserCheck
+  UserCheck,
+  ExternalLink
 } from "lucide-react";
 
 interface AdminDashboardProps {
@@ -324,9 +325,6 @@ export default function AdminDashboard({
     if (feedFilter === "Onay Bekleyenler") {
       return item.approved === false;
     }
-    
-    // For other tabs, by default hide unapproved items so they don't block work
-    if (item.approved === false) return false;
 
     if (feedFilter === "Hepsi") return true;
     if (feedFilter === "Öneri") return item.category === FeedType.Oneri;
@@ -360,6 +358,16 @@ export default function AdminDashboard({
 
           {/* Tab lists */}
           <nav className="space-y-1">
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center space-x-2.5 p-3 rounded-xl text-xs font-bold transition-all cursor-pointer text-rose-200 hover:bg-rose-900 border-b border-rose-900/40 pb-3 mb-1"
+            >
+              <ExternalLink className="w-4 h-4 text-rose-300" />
+              <span>Siteyi gör</span>
+            </a>
+
             <button
               onClick={() => { setActiveTab("vitrin"); setSidebarOpen(false); }}
               className={`w-full flex items-center space-x-2.5 p-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -798,8 +806,8 @@ export default function AdminDashboard({
                       const count = cat === "Onay Bekleyenler"
                         ? appState.feedItems.filter((x) => x.approved === false).length
                         : cat === "Hepsi"
-                        ? appState.feedItems.filter((x) => x.approved !== false).length
-                        : appState.feedItems.filter((x) => x.category === cat && x.approved !== false).length;
+                        ? appState.feedItems.length
+                        : appState.feedItems.filter((x) => x.category === cat).length;
 
                       return (
                         <button
@@ -835,6 +843,11 @@ export default function AdminDashboard({
                           }`}>
                             {item.category}
                           </span>
+                          {item.approved === false && (
+                            <span className="px-2 py-0.5 text-[9px] font-black uppercase rounded bg-amber-500 text-white animate-pulse">
+                              ⚠️ Onay Bekliyor
+                            </span>
+                          )}
                           <span className="text-[10px] font-mono text-slate-400">ID: {item.id}</span>
                         </div>
 

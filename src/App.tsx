@@ -46,8 +46,19 @@ export default function App() {
         setCurrentUser(savedUser);
         setUserRole(savedRole);
       }
+      const savedView = localStorage.getItem("currentView");
+      if (savedView) {
+        setView(savedView);
+      }
     }
   }, []);
+
+  // Sync currentView with localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("currentView", currentView);
+    }
+  }, [currentView]);
 
   // Policy Modal state matches professional legal needs
   const [selectedPolicyTitle, setSelectedPolicyTitle] = useState<string | null>(null);
@@ -356,6 +367,7 @@ export default function App() {
     if (typeof window !== "undefined") {
       localStorage.removeItem("currentUser");
       localStorage.removeItem("userRole");
+      localStorage.removeItem("currentView");
     }
     setView("home");
   };
