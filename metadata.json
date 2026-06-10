@@ -1,0 +1,6 @@
+{
+  "name": "ÖnerimVar.org",
+  "description": "Cevap Veren Kurumlar, Şeffaf Çözümler - Vatandaş ve Kurum Katılım Portalı",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

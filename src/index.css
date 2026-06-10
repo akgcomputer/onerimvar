@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Premium LED glow shadow designs - tweaked for Professional Polish dark theme */
+  --shadow-led-emerald: 0 0 16px -1px rgba(16, 185, 129, 0.45), 0 4px 6px -1px rgba(16, 185, 129, 0.15);
+  --shadow-led-rose: 0 0 16px -1px rgba(244, 63, 94, 0.45), 0 4px 6px -1px rgba(244, 63, 94, 0.15);
+  --shadow-led-indigo: 0 0 16px -1px rgba(99, 102, 241, 0.45), 0 4px 6px -1px rgba(99, 102, 241, 0.15);
+  --shadow-led-gray: 0 0 16px -1px rgba(148, 163, 184, 0.35), 0 4px 6px -1px rgba(148, 163, 184, 0.15);
+  --shadow-led-amber: 0 0 16px -1px rgba(245, 158, 11, 0.5), 0 4px 6px -1px rgba(245, 158, 11, 0.15);
+  --shadow-led-bordo: 0 0 16px -1px rgba(159, 18, 57, 0.55), 0 4px 6px -1px rgba(159, 18, 57, 0.15);
+}
+
+/* 
+ * PROFESSIONAL POLISH DESIGN THEME OVERRIDES
+ * Pristine, elegant light theme based on the user's custom screenshot.
+ * Pure white cards, neutral-50 stone foundations, high-contrast typography, and vivid status elements.
+ */
+
+body {
+  font-family: var(--font-sans);
+  background-color: #fcfbf9 !important; /* Elegant off-white background */
+  color: #171717 !important;
+  overflow-x: hidden;
+  font-size: 15px !important; /* Slightly enlarged base font size for higher overall readability */
+}
+
+#app-router-scope {
+  background-color: #fcfbf9 !important;
+}
+
+/* Pristine crisp cards & white backgrounds */
+.bg-white,
+[class*="bg-white"] {
+  background-color: #ffffff !important;
+  color: #171717 !important;
+}
+
+/* Light foundations for sections */
+.bg-stone-50,
+.bg-stone-50\/50,
+.bg-neutral-50,
+.bg-neutral-50\/45,
+.bg-neutral-50\/40,
+.bg-neutral-50\/50,
+.bg-neutral-50\/80,
+.bg-neutral-100 {
+  background-color: #f9f9f9 !important;
+  color: #171717 !important;
+}
+
+/* High contrast text elements for clear scannability */
+.text-neutral-900,
+.text-neutral-800,
+.text-slate-900,
+.text-stone-900,
+.text-black {
+  color: #0c0a09 !important; /* Charcoal dark */
+}
+
+.text-neutral-700,
+.text-neutral-600,
+.text-slate-700,
+.text-stone-700 {
+  color: #2b2b2b !important;
+}
+
+.text-neutral-500,
+.text-neutral-400,
+.text-slate-500,
+.text-slate-400,
+.text-stone-500,
+.text-stone-400 {
+  color: #626262 !important;
+}
+
+/* Beautiful custom border colors */
+.border,
+.border-gray-100,
+.border-neutral-50,
+.border-neutral-100,
+.border-[#334155],
+.border-neutral-200,
+.border-neutral-300,
+.border-stone-100,
+.border-stone-200 {
+  border-color: #ececec !important; 
+}
+
+/* Clean, crisp input boxes */
+input,
+textarea,
+select {
+  background-color: #ffffff !important;
+  border: 1px solid #d4d4d8 !important;
+  color: #171717 !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #059669 !important; /* Active emerald glow */
+  outline: none !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #a1a1aa !important;
+}
+
+/* Dynamic pulsing heart animation for Nebiz Anket */
+@keyframes heartPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.23);
+    opacity: 0.8;
+  }
+}
+
+.heart-pulse-icon {
+  animation: heartPulse 1.2s infinite ease-in-out;
+  color: #dc2626;
+}
+
+/* Custom smooth transitions */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hero Section style matching user's screenshot exactly */
+#hero-section {
+  background: radial-gradient(circle at bottom, #ffffff 0%, #FAF9F6 100%) !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+/* Action button background colors override according to screenshot */
+.bg-emerald-600 {
+  background-color: #059669 !important;
+  color: #ffffff !important;
+}
+.bg-emerald-600:hover {
+  background-color: #047857 !important;
+}
+
+.bg-red-600 {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+.bg-red-600:hover {
+  background-color: #b91c1c !important;
+}
+
+.bg-indigo-900 {
+  background-color: #1e3a8a !important;
+  color: #ffffff !important;
+}
+.bg-indigo-900:hover {
+  background-color: #172554 !important;
+}
+
+/* Align active navigation elements to Emerald colors */
+header button[id*="nav-item-active"],
+.bg-emerald-5,
+.bg-emerald-50,
+[class*="bg-emerald-50"] {
+  background-color: rgba(5, 150, 105, 0.08) !important;
+  color: #059669 !important;
+}
+
+/* Floating overlay */
+.fixed,
+[className*="fixed"] {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+
