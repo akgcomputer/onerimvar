@@ -121,3 +121,45 @@ INSERT OR REPLACE INTO leagues (id, category, name, metric_label, metric_value, 
 ('kk-1', 'kayitsizKalanlar', 'Sürat Kargo Merkez', 'Yanıt Verme Oranı', '%0 Yanıt', 100),
 ('kk-2', 'kayitsizKalanlar', 'Vandor Giyim Sanayi', 'Zamanında Çözüm', '%2 Geri Dönüş', 95),
 ('kk-3', 'kayitsizKalanlar', 'Asis Elektronik Kart', 'Müşteri İlgi Oranı', '%4 Dinleme', 90);
+
+-- Users Table
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE,
+  password TEXT,
+  full_name TEXT,
+  phone TEXT,
+  role TEXT DEFAULT 'User',
+  avatar TEXT DEFAULT '👤',
+  unvan TEXT DEFAULT 'Kent Gönüllüsü',
+  created_at TEXT
+);
+
+-- Businesses Table
+CREATE TABLE IF NOT EXISTS businesses (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE,
+  password TEXT,
+  name TEXT,
+  tax_or_detsis TEXT,
+  sector TEXT,
+  role TEXT DEFAULT 'Business',
+  about TEXT,
+  vision TEXT,
+  budget_commitment TEXT,
+  logo TEXT,
+  created_at TEXT
+);
+
+-- Seed Default Admin
+INSERT OR REPLACE INTO users (id, email, password, full_name, role, unvan, created_at) VALUES 
+('usr-admin', 'admin@onerimvar.org', 'admin123', 'Süper Admin', 'Admin', 'Sistem Yöneticisi', '2026-06-01T00:00:00Z');
+
+-- Seed Default User
+INSERT OR REPLACE INTO users (id, email, password, full_name, phone, role, avatar, unvan, created_at) VALUES 
+('usr-ahmet', 'ahmet@gmail.com', 'ahmet123', 'Ahmet Demir', '5551234', 'User', '👤', 'Kent Gönüllüsü', '2026-06-01T00:00:00Z');
+
+-- Seed Default Business Accounts
+INSERT OR REPLACE INTO businesses (id, email, password, name, tax_or_detsis, sector, role, about, vision, budget_commitment, logo, created_at) VALUES 
+('biz-kadikoy', 'iletisim@belediye.bel.tr', 'belediye123', 'Kadıköy Belediyesi', 'D-9204122', 'kamu', 'Business', 'Kadıköy Belediyesi kentsel sürdürülebilirlik odaklı kamu kurumudur.', 'Katılımcı Bütçe geliştirmek.', '12.0 Milyon ₺ / Yıl', '🏛️', '2026-01-15T09:00:00Z'),
+('biz-trend', 'iletisim@trendexpress.com', 'express123', 'TrendExpress Dağıtım', '1048201201', 'ozel', 'Business', 'E-ticaret lojistiği ve hızlı yayın ağı taşımacılığı markasıdır.', 'Kurye filosunu elektrikli araçlara dönüştürmek.', '5.0 Milyon ₺ / Yıl', '📦', '2026-06-01T15:30:00Z');

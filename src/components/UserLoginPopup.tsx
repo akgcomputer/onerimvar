@@ -44,18 +44,34 @@ export default function UserLoginPopup({
         return;
       }
 
-      setSuccessMsg("Kayıt işleminiz başarıyla tamamlandı! Sisteme giriş yapılıyor...");
-      setTimeout(() => {
-        onLoginSuccess(fullName, "User");
-        onClose();
-        setIsRegistering(false);
-        // Clear forms
-        setFullName("");
-        setEmail("");
-        setPassword("");
-        setPhone("");
-        setSuccessMsg("");
-      }, 1000);
+      fetch("/api/register-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, fullName, phone: sanitizedPhone })
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setSuccessMsg("Kayıt işleminiz başarıyla tamamlandı! Sisteme giriş yapılıyor...");
+          setTimeout(() => {
+            onLoginSuccess(fullName, "User");
+            onClose();
+            setIsRegistering(false);
+            // Clear forms
+            setFullName("");
+            setEmail("");
+            setPassword("");
+            setPhone("");
+            setSuccessMsg("");
+          }, 1000);
+        } else {
+          setErrorMsg(data.error || "Kayıt başarısız oldu.");
+        }
+      })
+      .catch((err) => {
+        console.error("Registration error:", err);
+        setErrorMsg("Bağlantı hatası oluştu.");
+      });
 
     } else {
       if (!email || !password) {
@@ -63,12 +79,24 @@ export default function UserLoginPopup({
         return;
       }
 
-      // Capture user's name from email or set default
-      const userName = email.split("@")[0];
-      const capitalizedName = userName.charAt(0).toUpperCase() + userName.slice(1);
-
-      onLoginSuccess(capitalizedName, "User");
-      onClose();
+      fetch("/api/login-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          onLoginSuccess(data.user.fullName, data.user.role);
+          onClose();
+        } else {
+          setErrorMsg(data.error || "Hatalı e-posta veya şifre.");
+        }
+      })
+      .catch((err) => {
+        console.error("Login error:", err);
+        setErrorMsg("Bağlantı hatası oluştu.");
+      });
     }
   };
 

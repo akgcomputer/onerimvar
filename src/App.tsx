@@ -38,6 +38,17 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null); // "User", "Business", "Admin"
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedUser = localStorage.getItem("currentUser");
+      const savedRole = localStorage.getItem("userRole");
+      if (savedUser && savedRole) {
+        setCurrentUser(savedUser);
+        setUserRole(savedRole);
+      }
+    }
+  }, []);
+
   // Policy Modal state matches professional legal needs
   const [selectedPolicyTitle, setSelectedPolicyTitle] = useState<string | null>(null);
   const [selectedPolicyText, setSelectedPolicyText] = useState<string | null>(null);
@@ -322,6 +333,10 @@ export default function App() {
   const handleLoginSuccess = (name: string, role: string) => {
     setCurrentUser(name);
     setUserRole(role);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("currentUser", name);
+      localStorage.setItem("userRole", role);
+    }
     if (role === "Admin") {
       setView("admin-dashboard");
     } else if (role === "Business") {
@@ -338,6 +353,10 @@ export default function App() {
   const handleLogout = () => {
     setCurrentUser(null);
     setUserRole(null);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("userRole");
+    }
     setView("home");
   };
 

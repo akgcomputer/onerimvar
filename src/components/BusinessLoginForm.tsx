@@ -69,14 +69,24 @@ export default function BusinessLoginForm({
       }
     }
 
-    // Auto determine default brand name if not filled from quick login
-    let finalCorpName = loginSector === "kamu" ? "Kadıköy Belediyesi" : "TrendExpress Dağıtım";
-    if (email.toLowerCase().includes("petrol") || email.toLowerCase().includes("ofisi")) {
-      finalCorpName = "Petrol Ofisi A.Ş.";
-    }
-
-    onLoginSuccess(finalCorpName, "Business");
-    setView("business-dashboard");
+    fetch("/api/login-business", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        onLoginSuccess(data.user.name, data.user.role);
+        setView("business-dashboard");
+      } else {
+        setLoginError(data.error || "Hatalı kurumsal e-posta veya şifre.");
+      }
+    })
+    .catch((err) => {
+      console.error("Business login error:", err);
+      setLoginError("Bağlantı hatası oluştu.");
+    });
   };
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
@@ -96,7 +106,23 @@ export default function BusinessLoginForm({
       }
     }
 
-    setRegSuccess(true);
+    fetch("/api/register-business", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: regTitle, taxOrDetsis: regTaxOrDetsis, email: regMail, password: regPass, sector: regSector })
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        setRegSuccess(true);
+      } else {
+        setRegError(data.error || "Kayıt sırasında bir hata oluştu.");
+      }
+    })
+    .catch((err) => {
+      console.error("Business registration error:", err);
+      setRegError("Bağlantı hatası oluştu.");
+    });
   };
 
   const handleCompleteActivation = () => {
