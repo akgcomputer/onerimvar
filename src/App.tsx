@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Sparkles } from "lucide-react";
-import { getAppState, saveAppState } from "./data";
+import { getAppState, saveAppState, sendActionToApi } from "./data";
 import { AppState, FeedType, SocialFeedItem, LeagueItem } from "./types";
 
 // Import components
@@ -61,6 +61,18 @@ export default function App() {
     setSelectedPolicyText(text);
   };
 
+  // Fetch initial state from D1
+  useEffect(() => {
+    fetch("/api/state")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && !data.error) {
+          setAppState(data);
+        }
+      })
+      .catch((err) => console.error("Failed to load D1 state:", err));
+  }, []);
+
   // Sync state with localStorage
   useEffect(() => {
     saveAppState(appState);
@@ -87,13 +99,14 @@ export default function App() {
       pollResultType: newItem.pollResultType,
       pollOptions: newItem.pollOptions,
       smsActivated: newItem.smsActivated,
-      ...(newItem.category === FeedType.Kampanya ? { signatureGoal: 1000, currentSignatures: 1 } : {})
+      ...(newItem.category === FeedType.Campaign || newItem.category === FeedType.Kampanya ? { signatureGoal: 1000, currentSignatures: 1 } : {})
     };
 
     setAppState((prev) => ({
       ...prev,
       feedItems: [freshItem, ...prev.feedItems]
     }));
+    sendActionToApi("addFeedItem", { item: freshItem });
   };
 
   const handleVoteFeedOption = (feedId: string, optionIndex: number) => {
@@ -111,6 +124,7 @@ export default function App() {
         return item;
       })
     }));
+    sendActionToApi("voteFeedOption", { feedId, optionIndex });
   };
 
   const handleVoteFeedItem = (id: string) => {
@@ -123,19 +137,21 @@ export default function App() {
         return item;
       })
     }));
+    sendActionToApi("voteFeedItem", { id });
   };
 
   const handleSignCampaign = (id: string) => {
     setAppState((prev) => ({
       ...prev,
       feedItems: prev.feedItems.map((item) => {
-        if (item.id === id && item.category === FeedType.Kampanya) {
+        if (item.id === id && (item.category === FeedType.Kampanya || item.category === FeedType.Campaign)) {
           const currentSig = item.currentSignatures || 0;
           return { ...item, currentSignatures: currentSig + 1 };
         }
         return item;
       })
     }));
+    sendActionToApi("signCampaign", { id });
   };
 
   const handleVoteWeekly = (option: "Yes" | "Undecided" | "No") => {
@@ -150,6 +166,7 @@ export default function App() {
         weeklyPoll: updatedPoll
       };
     });
+    sendActionToApi("voteWeekly", { option });
   };
 
   const handleVoteBusiness = (candidateId: string) => {
@@ -166,6 +183,7 @@ export default function App() {
         businessCandidates: updatedCandidates
       };
     });
+    sendActionToApi("voteBusiness", { candidateId });
   };
 
   const handleDownloadReport = () => {
@@ -173,6 +191,7 @@ export default function App() {
       ...prev,
       reportDownloadsCount: prev.reportDownloadsCount + 1
     }));
+    sendActionToApi("downloadReport", {});
   };
 
   const handleUpdateFeedStatus = (
@@ -188,6 +207,7 @@ export default function App() {
         return item;
       })
     }));
+    sendActionToApi("updateFeedStatus", { feedId, newStatus });
   };
 
   const handleUpdatePollQuestion = (newQuestion: string) => {
@@ -198,6 +218,7 @@ export default function App() {
         question: newQuestion
       }
     }));
+    sendActionToApi("updatePollQuestion", { newQuestion });
   };
 
   const handleUpdateReportPdf = (newName: string) => {
@@ -205,6 +226,7 @@ export default function App() {
       ...prev,
       reportPdfName: newName
     }));
+    sendActionToApi("updateReportPdf", { newName });
   };
 
   const handleResetReportDownloads = () => {
@@ -212,6 +234,7 @@ export default function App() {
       ...prev,
       reportDownloadsCount: 0
     }));
+    sendActionToApi("resetReportDownloads", {});
   };
 
   const handleToggleLeagueMode = () => {
@@ -219,6 +242,7 @@ export default function App() {
       ...prev,
       leagueMode: prev.leagueMode === "Auto" ? "Manuel" : "Auto"
     }));
+    sendActionToApi("toggleLeagueMode", {});
   };
 
   const handleAddLeagueItem = (
@@ -232,6 +256,7 @@ export default function App() {
         [category]: [item, ...prev.leagues[category]]
       }
     }));
+    sendActionToApi("addLeagueItem", { category, item });
   };
 
   const handleRemoveLeagueItem = (
@@ -245,6 +270,7 @@ export default function App() {
         [category]: prev.leagues[category].filter((item) => item.id !== itemId)
       }
     }));
+    sendActionToApi("removeLeagueItem", { category, itemId });
   };
 
   const handleResetPollVotes = () => {
@@ -257,6 +283,7 @@ export default function App() {
         votesNo: 0
       }
     }));
+    sendActionToApi("resetPollVotes", {});
   };
 
   const handleUpdateSiteSettings = (newSettings: Partial<typeof appState.siteSettings>) => {
@@ -267,6 +294,7 @@ export default function App() {
         ...newSettings
       }
     }));
+    sendActionToApi("updateSiteSettings", { settings: newSettings });
   };
 
   const handleDeleteFeedItem = (id: string) => {
@@ -274,6 +302,7 @@ export default function App() {
       ...prev,
       feedItems: prev.feedItems.filter((item) => item.id !== id)
     }));
+    sendActionToApi("deleteFeedItem", { id });
   };
 
   const handleUpdateFeedItem = (id: string, updated: Partial<SocialFeedItem>) => {
@@ -286,6 +315,7 @@ export default function App() {
         return item;
       })
     }));
+    sendActionToApi("updateFeedItem", { id, updated });
   };
 
   // Auth logins

@@ -1,0 +1,8 @@
+name = "onerimvar"
+compatibility_date = "2026-06-10"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "onerimvar-db"
+database_id = "917d7910-b041-451a-94f1-4841a1168d78"
