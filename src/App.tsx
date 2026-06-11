@@ -46,19 +46,59 @@ export default function App() {
         setCurrentUser(savedUser);
         setUserRole(savedRole);
       }
-      const savedView = localStorage.getItem("currentView");
+      const savedView = sessionStorage.getItem("currentView");
       if (savedView) {
         setView(savedView);
       }
     }
   }, []);
 
-  // Sync currentView with localStorage
+  // Sync currentView with sessionStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("currentView", currentView);
+      sessionStorage.setItem("currentView", currentView);
     }
   }, [currentView]);
+
+  // Session inactivity timeout tracker
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+    
+    const updateActivity = () => {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("lastActivity", Date.now().toString());
+      }
+    };
+
+    // Initialize activity on mount/login
+    updateActivity();
+
+    // Event listeners to detect user interaction
+    const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart"];
+    events.forEach((name) => {
+      window.addEventListener(name, updateActivity);
+    });
+
+    const interval = setInterval(() => {
+      const lastActivityStr = localStorage.getItem("lastActivity");
+      if (lastActivityStr) {
+        const lastActivity = parseInt(lastActivityStr, 10);
+        if (Date.now() - lastActivity > TIMEOUT_MS) {
+          handleLogout();
+          alert("Oturumunuz uzun süre işlem yapılmadığı için güvenlik gereği sonlandırıldı. Lütfen tekrar giriş yapın.");
+        }
+      }
+    }, 10000); // Check every 10 seconds
+
+    return () => {
+      events.forEach((name) => {
+        window.removeEventListener(name, updateActivity);
+      });
+      clearInterval(interval);
+    };
+  }, [currentUser]);
 
   // Policy Modal state matches professional legal needs
   const [selectedPolicyTitle, setSelectedPolicyTitle] = useState<string | null>(null);
@@ -367,7 +407,8 @@ export default function App() {
     if (typeof window !== "undefined") {
       localStorage.removeItem("currentUser");
       localStorage.removeItem("userRole");
-      localStorage.removeItem("currentView");
+      localStorage.removeItem("lastActivity");
+      sessionStorage.removeItem("currentView");
     }
     setView("home");
   };
@@ -384,6 +425,7 @@ export default function App() {
           setView={setView}
           openLoginModal={() => setIsLoginModalOpen(true)}
           currentUser={currentUser}
+          userRole={userRole}
           onLogout={handleLogout}
         />
       )}

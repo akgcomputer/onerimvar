@@ -11,6 +11,7 @@ interface HeaderProps {
   setView: (view: string) => void;
   openLoginModal: () => void;
   currentUser: string | null;
+  userRole: string | null;
   onLogout: () => void;
 }
 
@@ -19,9 +20,20 @@ export default function Header({
   setView,
   openLoginModal,
   currentUser,
+  userRole,
   onLogout
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleProfileClick = () => {
+    if (userRole === "Admin") {
+      setView("admin-dashboard");
+    } else if (userRole === "Business") {
+      setView("business-dashboard");
+    } else {
+      setView("user-dashboard");
+    }
+  };
 
   const navItems = [
     { id: "seffaflik-ligi", label: "📊 Şeffaflık Ligi", icon: ShieldAlert },
@@ -76,8 +88,8 @@ export default function Header({
         <div className="hidden lg:flex items-center space-x-4" id="header-action-container">
           {currentUser ? (
             <div className="flex items-center space-x-3">
-              <span className="text-sm font-medium text-neutral-700">
-                Merhaba, <strong className="text-emerald-600 font-semibold">{currentUser}</strong>
+              <span className="text-sm font-medium text-neutral-750 select-none">
+                Merhaba, <button onClick={handleProfileClick} className="text-emerald-600 font-extrabold hover:underline bg-transparent border-0 cursor-pointer p-0 inline font-sans">{currentUser}</button>
               </span>
               <button
                 onClick={onLogout}
@@ -152,8 +164,8 @@ export default function Header({
           
           {currentUser ? (
             <div className="px-4 py-3 bg-neutral-50 rounded-xl">
-              <p className="text-sm text-neutral-600 mb-2">
-                Oturum Açık: <span className="font-semibold text-neutral-900">{currentUser}</span>
+              <p className="text-sm text-neutral-600 mb-2 select-none">
+                Oturum Açık: <button onClick={() => { handleProfileClick(); setIsMobileMenuOpen(false); }} className="text-emerald-600 font-extrabold hover:underline bg-transparent border-0 cursor-pointer p-0 inline font-sans">{currentUser}</button>
               </p>
               <button
                 onClick={() => {

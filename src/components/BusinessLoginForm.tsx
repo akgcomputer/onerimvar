@@ -29,6 +29,9 @@ export default function BusinessLoginForm({
 }: BusinessLoginFormProps) {
   // General view tabs: "login" or "register"
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+  const [showLoginPass, setShowLoginPass] = useState(false);
+  const [showRegPass, setShowRegPass] = useState(false);
+  const [captchaVerified, setCaptchaVerified] = useState(false);
   
   // Login states
   const [loginSector, setLoginSector] = useState<"ozel" | "kamu">("ozel");
@@ -51,6 +54,11 @@ export default function BusinessLoginForm({
     e.preventDefault();
     setLoginError("");
     setForgotPasswordSuccess(false);
+
+    if (!captchaVerified) {
+      setLoginError("Lütfen robot olmadığınızı doğrulayınız.");
+      return;
+    }
 
     if (!email || !password) {
       setLoginError("Lütfen tüm alanları eksiksiz giriniz.");
@@ -88,6 +96,11 @@ export default function BusinessLoginForm({
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setRegError("");
+
+    if (!captchaVerified) {
+      setRegError("Lütfen robot olmadığınızı doğrulayınız.");
+      return;
+    }
 
     if (!regTitle || !regTaxOrDetsis || !regMail || !regPass) {
       setRegError("Lütfen başvuru formundaki tüm alanları doldurunuz.");
@@ -157,7 +170,7 @@ export default function BusinessLoginForm({
             <div className="flex border-b border-neutral-200 bg-neutral-100 p-2.5 shadow-inner">
               <button
                 type="button"
-                onClick={() => { setActiveTab("login"); setRegError(""); setLoginError(""); }}
+                onClick={() => { setActiveTab("login"); setRegError(""); setLoginError(""); setCaptchaVerified(false); setShowLoginPass(false); setShowRegPass(false); }}
                 className={`flex-1 py-3.5 px-4 rounded-xl text-sm font-black transition-all cursor-pointer flex items-center justify-center space-x-2 ${
                   activeTab === "login"
                     ? "bg-white text-indigo-950 shadow-xs border border-neutral-200"
@@ -169,7 +182,7 @@ export default function BusinessLoginForm({
               </button>
               <button
                 type="button"
-                onClick={() => { setActiveTab("register"); setRegError(""); setLoginError(""); }}
+                onClick={() => { setActiveTab("register"); setRegError(""); setLoginError(""); setCaptchaVerified(false); setShowLoginPass(false); setShowRegPass(false); }}
                 className={`flex-1 py-3.5 px-4 rounded-xl text-sm font-black transition-all cursor-pointer flex items-center justify-center space-x-2 ${
                   activeTab === "register"
                     ? "bg-gradient-to-r from-fuchsia-600 to-indigo-950 text-white shadow-md border border-fuchsia-700"
@@ -242,20 +255,27 @@ export default function BusinessLoginForm({
                       className="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:outline-hidden focus:ring-1 focus:ring-indigo-600 focus:border-indigo-600 text-sm font-semibold"
                     />
                   </div>
-
-                  {/* Password */}
                   <div className="space-y-2">
                     <label className="block text-xs font-black text-neutral-700 uppercase tracking-wider">
                       Şifre
                     </label>
-                    <input
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:outline-hidden focus:ring-1 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showLoginPass ? "text" : "password"}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full pl-4 pr-12 py-3 rounded-xl border border-neutral-300 focus:outline-hidden focus:ring-1 focus:ring-indigo-600 focus:border-indigo-600 text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowLoginPass(!showLoginPass)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-bold text-neutral-600 hover:text-neutral-800 cursor-pointer bg-transparent border-0"
+                      >
+                        {showLoginPass ? "Gizle" : "Göster"}
+                      </button>
+                    </div>
                   </div>
 
                   {/* Forgot Password Link */}
@@ -263,10 +283,15 @@ export default function BusinessLoginForm({
                     <button
                       type="button"
                       onClick={() => setForgotPasswordSuccess(true)}
-                      className="text-xs font-black text-red-650 hover:text-red-700 underline cursor-pointer hover:no-underline transition-all"
+                      className="text-xs font-black text-red-655 hover:text-red-700 underline cursor-pointer hover:no-underline transition-all font-sans"
                     >
                       Şifremi unuttum
                     </button>
+                  </div>
+
+                  {/* Captcha Widget */}
+                  <div className="py-1">
+                    <TurnstileWidget onVerify={setCaptchaVerified} verified={captchaVerified} />
                   </div>
 
                   {/* Submit Button */}
@@ -385,7 +410,12 @@ export default function BusinessLoginForm({
                           type="text"
                           required
                           value={regTaxOrDetsis}
-                          onChange={(e) => setRegTaxOrDetsis(e.target.value)}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (regSector === "ozel" && val.length > 11) return;
+                            setRegTaxOrDetsis(val);
+                          }}
+                          maxLength={regSector === "ozel" ? 11 : undefined}
                           placeholder={regSector === "kamu" ? "Örn: D-9204122" : "Örn: 1048201201"}
                           className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-xl text-sm font-mono font-bold"
                         />
@@ -416,14 +446,28 @@ export default function BusinessLoginForm({
                       <label className="block text-xs font-black text-neutral-700 uppercase tracking-wider">
                         Erişim Şifrenizi Belirleyin
                       </label>
-                      <input
-                        type="password"
-                        required
-                        value={regPass}
-                        onChange={(e) => setRegPass(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-xl text-sm"
-                      />
+                      <div className="relative">
+                        <input
+                          type={showRegPass ? "text" : "password"}
+                          required
+                          value={regPass}
+                          onChange={(e) => setRegPass(e.target.value)}
+                          placeholder="••••••••"
+                          className="w-full pl-4 pr-12 py-3 bg-white border border-neutral-300 rounded-xl text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowRegPass(!showRegPass)}
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-bold text-neutral-600 hover:text-neutral-800 cursor-pointer bg-transparent border-0"
+                        >
+                          {showRegPass ? "Gizle" : "Göster"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Captcha Widget */}
+                    <div className="py-1">
+                      <TurnstileWidget onVerify={setCaptchaVerified} verified={captchaVerified} />
                     </div>
 
                     <button
@@ -488,6 +532,45 @@ export default function BusinessLoginForm({
 
       </div>
 
+    </div>
+  );
+}
+
+function TurnstileWidget({ onVerify, verified }: { onVerify: (v: boolean) => void; verified: boolean }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleCheck = () => {
+    if (verified || loading) return;
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      onVerify(true);
+    }, 1200);
+  };
+
+  return (
+    <div className="flex items-center justify-between p-3.5 bg-stone-50 border border-stone-205 rounded-2xl w-full select-none shadow-inner">
+      <div className="flex items-center space-x-2.5">
+        <button
+          type="button"
+          onClick={handleCheck}
+          className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all cursor-pointer ${
+            verified 
+              ? "bg-indigo-650 border-indigo-650 text-white" 
+              : "bg-white border-neutral-300 hover:border-neutral-400"
+          }`}
+        >
+          {loading && <div className="w-3.5 h-3.5 border-2 border-indigo-650 border-t-transparent rounded-full animate-spin"></div>}
+          {verified && <Check className="w-4.5 h-4.5 text-white" />}
+        </button>
+        <span className="text-xs font-bold text-neutral-700 cursor-pointer" onClick={handleCheck}>
+          Ben robot değilim
+        </span>
+      </div>
+      <div className="flex flex-col items-end opacity-60">
+        <span className="text-[7px] font-bold text-neutral-455 uppercase tracking-widest font-mono leading-none">Cloudflare</span>
+        <span className="text-[8px] font-black text-indigo-950 font-sans tracking-tight leading-none mt-0.5">Turnstile</span>
+      </div>
     </div>
   );
 }

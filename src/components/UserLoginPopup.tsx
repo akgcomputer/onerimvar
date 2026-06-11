@@ -24,6 +24,8 @@ export default function UserLoginPopup({
   const [phone, setPhone] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [captchaVerified, setCaptchaVerified] = useState(false);
 
   if (!isOpen) return null;
 
@@ -31,6 +33,11 @@ export default function UserLoginPopup({
     e.preventDefault();
     setErrorMsg("");
     setSuccessMsg("");
+
+    if (!captchaVerified) {
+      setErrorMsg("Lütfen robot olmadığınızı doğrulayınız.");
+      return;
+    }
 
     if (isRegistering) {
       if (!fullName || !email || !password || !phone) {
@@ -219,7 +226,7 @@ export default function UserLoginPopup({
               </div>
             </div>
 
-            {/* Password */}
+             {/* Password */}
             <div>
               <label className="block text-[11px] font-bold text-neutral-700 uppercase tracking-wider mb-1">
                 Şifre
@@ -229,13 +236,20 @@ export default function UserLoginPopup({
                   <Lock className="w-4 h-4" />
                 </span>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setErrorMsg(""); }}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2 rounded-xl border border-neutral-200 focus:outline-hidden focus:border-emerald-600 text-xs"
+                  className="w-full pl-10 pr-12 py-2 rounded-xl border border-neutral-200 focus:outline-hidden focus:border-emerald-600 text-xs font-mono"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[10px] font-bold text-emerald-600 hover:text-emerald-700 cursor-pointer bg-transparent border-0"
+                >
+                  {showPassword ? "Gizle" : "Göster"}
+                </button>
               </div>
             </div>
 
@@ -247,6 +261,11 @@ export default function UserLoginPopup({
                 </a>
               </div>
             )}
+
+            {/* Captcha Widget */}
+            <div className="py-1">
+              <TurnstileWidget onVerify={setCaptchaVerified} verified={captchaVerified} />
+            </div>
 
             {/* Submit Button */}
             <button
@@ -264,7 +283,7 @@ export default function UserLoginPopup({
               <span>
                 Zaten hesabınız var mı?{" "}
                 <button 
-                  onClick={() => { setIsRegistering(false); setErrorMsg(""); }} 
+                  onClick={() => { setIsRegistering(false); setErrorMsg(""); setCaptchaVerified(false); setShowPassword(false); }} 
                   className="text-emerald-700 font-bold hover:underline bg-transparent border-0 cursor-pointer"
                 >
                   Buradan Giriş Yapın
@@ -274,7 +293,7 @@ export default function UserLoginPopup({
               <span>
                 Hesabınız yok mu?{" "}
                 <button 
-                  onClick={() => { setIsRegistering(true); setErrorMsg(""); }} 
+                  onClick={() => { setIsRegistering(true); setErrorMsg(""); setCaptchaVerified(false); setShowPassword(false); }} 
                   className="text-emerald-700 font-bold hover:underline bg-transparent border-0 cursor-pointer"
                 >
                   Hemen Kaydolun
@@ -284,6 +303,45 @@ export default function UserLoginPopup({
           </div>
 
         </div>
+      </div>
+    </div>
+  );
+}
+
+function TurnstileWidget({ onVerify, verified }: { onVerify: (v: boolean) => void; verified: boolean }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleCheck = () => {
+    if (verified || loading) return;
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      onVerify(true);
+    }, 1200);
+  };
+
+  return (
+    <div className="flex items-center justify-between p-3 bg-stone-50 border border-stone-205 rounded-2xl w-full select-none shadow-inner">
+      <div className="flex items-center space-x-2.5">
+        <button
+          type="button"
+          onClick={handleCheck}
+          className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all cursor-pointer ${
+            verified 
+              ? "bg-emerald-600 border-emerald-600 text-white" 
+              : "bg-white border-neutral-300 hover:border-neutral-400"
+          }`}
+        >
+          {loading && <div className="w-3.5 h-3.5 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>}
+          {verified && <Check className="w-4.5 h-4.5 text-white" />}
+        </button>
+        <span className="text-xs font-bold text-neutral-700 cursor-pointer" onClick={handleCheck}>
+          Ben robot değilim
+        </span>
+      </div>
+      <div className="flex flex-col items-end opacity-60">
+        <span className="text-[7px] font-bold text-neutral-450 uppercase tracking-widest font-mono leading-none">Cloudflare</span>
+        <span className="text-[8px] font-black text-emerald-800 font-sans tracking-tight leading-none mt-0.5">Turnstile</span>
       </div>
     </div>
   );
